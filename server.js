@@ -133,10 +133,18 @@ app.post('/process-speech', async (req, res) => {
         const grokResponse = await getGrokResponse(speechResult, callSid);
 
         // Convert response to speech using ElevenLabs
-        const audioUrl = await generateSpeech(grokResponse);
+        const audioUrl = await generateSpeech(grokResponse, req);
 
-        // Play the response
-        twiml.play(audioUrl);
+        if (audioUrl) {
+          // Play ElevenLabs audio
+          twiml.play(audioUrl);
+        } else {
+          // Fallback to Twilio TTS
+          twiml.say({
+            voice: 'alice',
+            language: 'en-US'
+          }, grokResponse);
+        }
 
         // Continue listening for more input
         twiml.gather({
@@ -246,7 +254,7 @@ const audioFiles = new Map();
 let audioCounter = 0;
 
 // ElevenLabs TTS integration
-async function generateSpeech(text) {
+async function generateSpeech(text, req) {
   try {
     console.log('Generating speech for:', text.substring(0, 50) + '...');
 
@@ -282,12 +290,16 @@ async function generateSpeech(text) {
     cleanupOldAudio();
 
     // Return the URL for Twilio to play
-    const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+    const protocol = req.protocol || 'https';
+    const host = req.get('host') || `localhost:${port}`;
+    const baseUrl = `${protocol}://${host}`;
     return `${baseUrl}/audio/${audioId}`;
 
   } catch (error) {
     console.error('ElevenLabs TTS error:', error.response?.data || error.message);
-    throw new Error('Failed to generate speech');
+    console.log('Falling back to Twilio TTS...');
+    // Return null to indicate we should use Twilio's built-in TTS
+    return null;
   }
 }
 
