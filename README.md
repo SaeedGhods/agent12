@@ -42,10 +42,15 @@ A voice-powered AI assistant that connects phone calls to xAI's Grok using Twili
 3. **Configure Twilio Webhook**
 
    In your Twilio Console:
-   - Go to Phone Numbers → Manage → Active Numbers
+   - Go to **Phone Numbers** → **Manage** → **Active Numbers**
    - Select your phone number
-   - Under "Voice & Fax", set the webhook URL to: `https://your-render-app.onrender.com/voice`
-   - HTTP method: POST
+   - Under **"Voice & Fax"**:
+     - Set **"A Call Comes In"** to: Webhook
+     - Webhook URL: `https://your-render-app.onrender.com/voice`
+     - HTTP method: POST
+   - Save the configuration
+
+   **Important**: Make sure your Render app is deployed and accessible before configuring the webhook.
 
 4. **Run Locally**
    ```bash
@@ -54,9 +59,17 @@ A voice-powered AI assistant that connects phone calls to xAI's Grok using Twili
 
 5. **Deploy to Render**
 
-   - Connect your GitHub repo to Render
-   - Set environment variables in Render dashboard
+   - Push your code to GitHub
+   - Go to [Render](https://render.com) and create a new Web Service
+   - Connect your GitHub repository
+   - Use the following settings:
+     - **Runtime**: Node
+     - **Build Command**: `npm install`
+     - **Start Command**: `npm start`
+   - Add environment variables in Render dashboard
    - Deploy!
+
+   Or use the provided `render.yaml` for one-click deployment.
 
 ## API Endpoints
 
@@ -70,6 +83,31 @@ A voice-powered AI assistant that connects phone calls to xAI's Grok using Twili
 Phone Call → Twilio → Webhook → Express Server → Grok API → ElevenLabs TTS → Twilio → Caller
 ```
 
+## Testing
+
+1. **Basic Functionality Test**
+   ```bash
+   npm test
+   # Runs automated tests for configuration and health checks
+   ```
+
+2. **Local Server Test**
+   ```bash
+   npm run dev
+   # Visit http://localhost:3000/health to check server status
+   ```
+
+3. **Phone Testing**
+   - Call your Twilio phone number
+   - You should hear: "Hello! You are now speaking with Grok..."
+   - Try speaking: "What's the weather like today?"
+   - The system should respond with Grok's voice
+   - Try ending the call by saying "goodbye"
+
+4. **API Testing**
+   - Check `/health` endpoint for server status and conversation stats
+   - Monitor server logs for debugging
+
 ## Development
 
 The server automatically handles:
@@ -78,6 +116,7 @@ The server automatically handles:
 - AI response generation via Grok
 - Text-to-speech conversion via ElevenLabs
 - Conversation history management
+- Automatic cleanup of old conversations and audio files
 
 ## License
 
