@@ -202,7 +202,7 @@ async function getGrokResponse(message, callSid) {
 
     const response = await axios.post('https://api.x.ai/v1/chat/completions', {
       messages: apiMessages,
-      model: 'grok-beta',
+      model: 'grok-3',
       stream: false,
       temperature: 0.7,
       max_tokens: 150 // Keep responses short for voice
